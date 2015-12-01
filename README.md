@@ -2,7 +2,7 @@
 
 ## Due 11-24-2015
 
-## Author
+## Author - Andy Cullen
 
 ## Description
 
@@ -57,11 +57,12 @@ Solution Requirements:
 * Delete functionality
 * UI Class to handle I/O
 
-### Notes
 
+## Outside Resources Used -
+In class example
 
-## Outside Resources Used
+http://www.dotnetperls.com/padright - Reminder on how to pad strings for pseudo-table formatting
 
 ## Known Problems, Issues, And/Or Errors in the Program
-
+Should work great!
 

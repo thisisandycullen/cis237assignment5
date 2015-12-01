@@ -1,6 +1,8 @@
-﻿//Author: David Barnes
+﻿//Update by: Andy Cullen
+//Original Author: David Barnes
 //CIS 237
-//Assignment 1
+//Assignment 1 >>> Assignment 5
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,15 +13,28 @@ namespace assignment1
 {
     class UserInterface
     {
-        const int maxMenuChoice = 5;
+        const int maxMenuChoice = 6;
+
         //---------------------------------------------------
         //Public Methods
         //---------------------------------------------------
 
+
+        //Display Import Success
+        public void DisplayImportSuccess()
+        {
+            Console.ForegroundColor = ConsoleColor.DarkGreen;
+            Console.WriteLine("The beverage list has been imported successfully.");
+            Console.WriteLine();
+            Console.ResetColor();
+        }
+
         //Display Welcome Greeting
         public void DisplayWelcomeGreeting()
         {
-            Console.WriteLine("Welcome to the wine program");
+            Console.WriteLine("-----------------------------------------");
+            Console.WriteLine("  Welcome to the Beverage List Manager!  ");
+            Console.WriteLine("-----------------------------------------");
         }
 
         //Display Menu And Get Response
@@ -29,8 +44,8 @@ namespace assignment1
             string selection;
 
             //Display menu, and prompt
-            this.displayMenu();
-            this.displayPrompt();
+            this.DisplayMenu();
+            this.DisplayPrompt();
 
             //Get the selection they enter
             selection = this.getSelection();
@@ -39,10 +54,10 @@ namespace assignment1
             while (!this.verifySelectionIsValid(selection))
             {
                 //display error message
-                this.displayErrorMessage();
+                this.DisplayErrorMessage();
 
                 //display the prompt again
-                this.displayPrompt();
+                this.DisplayPrompt();
 
                 //get the selection again
                 selection = this.getSelection();
@@ -55,118 +70,209 @@ namespace assignment1
         public string GetSearchQuery()
         {
             Console.WriteLine();
-            Console.WriteLine("What would you like to search for?");
+            Console.WriteLine("Enter the ID of the beverage you are searching for:");
             Console.Write("> ");
             return Console.ReadLine();
         }
 
-        //Get New Item Information From The User.
-        public string[] GetNewItemInformation()
+        //Get new item information from the user
+        public string[] GetItemInformation(bool updatingItem, string itemID)
         {
-            Console.WriteLine();
-            Console.WriteLine("What is the new items Id?");
-            Console.Write("> ");
-            string id = Console.ReadLine();
-            Console.WriteLine("What is the new items Description?");
+            string id = itemID; //this will be passed in as a blank string or an existing ID
+
+            //Skip this when updating an item
+            if (!updatingItem)
+            {
+                Console.WriteLine();
+                Console.WriteLine("What is the item's ID?");
+                Console.Write("> ");
+                id = Console.ReadLine();
+            }
+            
+            //Get data for remaining fields
+            Console.WriteLine("What is the item's Description?");
             Console.Write("> ");
             string description = Console.ReadLine();
-            Console.WriteLine("What is the new items Pack?");
+            Console.WriteLine("What is the item's Pack?");
             Console.Write("> ");
             string pack = Console.ReadLine();
 
-            return new string[] { id, description, pack };
-        }
+            //Update: added price and active status
+            Console.WriteLine("What is the item's Price?");
+            Console.Write("> ");
+            string price = Console.ReadLine();
 
-        //Display Import Success
-        public void DisplayImportSuccess()
-        {
-            Console.WriteLine();
-            Console.WriteLine("Wine List Has Been Imported Successfully");
-        }
+            Console.WriteLine("Is the item Active? Y or N ");
+            Console.Write("> ");
+            string activeStatus = Console.ReadLine();
 
-        //Display Import Error
-        public void DisplayImportError()
-        {
-            Console.WriteLine();
-            Console.WriteLine("There was an error importing the CSV");
+            if (activeStatus.ToUpper() == "Y")
+                activeStatus = "true";
+            else
+                activeStatus = "false";
+
+            return new string[] { id, description, pack, price, activeStatus };
         }
 
         //Display All Items
-        public void DisplayAllItems(string[] allItemsOutput)
+        public void DisplayAllItems(BeverageACullenEntities beverageACullenEntities)
         {
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.WriteLine();
-            foreach (string itemOutput in allItemsOutput)
+
+            foreach (Beverage displayBeverage in beverageACullenEntities.Beverages)
             {
-                Console.WriteLine(itemOutput);
+                string activeString;
+
+                if (displayBeverage.active)
+                {
+                    activeString = "Active";
+                }
+                else
+                {
+                    activeString = "Not active";
+                }
+
+                Console.WriteLine("------------------------------------------------------------");
+                Console.WriteLine(displayBeverage.id.Trim() + ": " + displayBeverage.name.Trim() + Environment.NewLine +
+                                    displayBeverage.pack.Trim().PadRight(39) + displayBeverage.price.ToString("c").PadRight(11) +
+                                    activeString);
+                Console.WriteLine("------------------------------------------------------------");
             }
+
+            Console.ResetColor();
         }
 
         //Display All Items Error
-        public void DisplayAllItemsError()
+        public void DisplayEmptyListError()
         {
+            Console.ForegroundColor = ConsoleColor.DarkRed;
             Console.WriteLine();
-            Console.WriteLine("There are no items in the list to print");
+            Console.WriteLine("Error: The list is empty.");
+            Console.ResetColor();
         }
 
-        //Display Item Found Success
-        public void DisplayItemFound(string itemInformation)
+        //Display item deleted
+        public void DisplayDeleteMessage()
         {
+            Console.ForegroundColor = ConsoleColor.DarkGreen;
             Console.WriteLine();
-            Console.WriteLine("Item Found!");
-            Console.WriteLine(itemInformation);
+            Console.WriteLine("The item above was deleted from the list.");
+            Console.ResetColor();
+        }
+
+        //Display Item Found
+        public void DisplayItemFound()
+        {
+            
+            Console.ForegroundColor = ConsoleColor.DarkGreen;
+            Console.WriteLine();
+            Console.WriteLine("Item found!");
+            Console.ResetColor();
+        }
+
+        //Display Item Found
+        public void DisplayItem(Beverage foundBeverage)
+        {
+            string activeString;
+
+            if (foundBeverage.active)
+            {
+                activeString = "Active";
+            }
+            else
+            {
+                activeString = "Not active";
+            }
+
+            Console.ForegroundColor = ConsoleColor.DarkGreen;
+            Console.WriteLine("------------------------------------------------------------");
+            Console.WriteLine(foundBeverage.id.Trim() + ": " + foundBeverage.name.Trim() + Environment.NewLine +
+                                foundBeverage.pack.Trim().PadRight(39) + foundBeverage.price.ToString("c").PadRight(11) +
+                                activeString);
+            Console.WriteLine("------------------------------------------------------------");
+            Console.ResetColor();
         }
 
         //Display Item Found Error
         public void DisplayItemFoundError()
         {
+            Console.ForegroundColor = ConsoleColor.DarkRed;
             Console.WriteLine();
-            Console.WriteLine("A Match was not found");
+            Console.WriteLine("A match was not found.");
+            Console.ResetColor();
         }
 
-        //Display Add Wine Item Success
-        public void DisplayAddWineItemSuccess()
+        //Display update directions
+        public void DisplayUpdateDirections()
         {
+            Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine();
-            Console.WriteLine("The Item was successfully added");
+            Console.WriteLine("UPDATE ITEM: Please enter updated values for this item:");
+            Console.ResetColor();
+        }
+
+        //Display Added Wine Item
+        public void DisplayAddItemSuccess()
+        {
+            Console.ForegroundColor = ConsoleColor.DarkGreen;
+            Console.WriteLine();
+            Console.WriteLine("The item was added successfully!");
+            Console.ResetColor();
+        }
+
+        //Display update item success
+        public void DisplayUpdateSuccess()
+        {
+            Console.ForegroundColor = ConsoleColor.DarkGreen;
+            Console.WriteLine();
+            Console.WriteLine("The item was updated successfully!");
+            Console.ResetColor();
         }
 
         //Display Item Already Exists Error
         public void DisplayItemAlreadyExistsError()
         {
+            Console.ForegroundColor = ConsoleColor.DarkRed;
             Console.WriteLine();
-            Console.WriteLine("An Item With That Id Already Exists");
+            Console.WriteLine("Error: An item with that ID already exists. The item was not added.");
+            Console.ResetColor();
         }
-
 
         //---------------------------------------------------
         //Private Methods
         //---------------------------------------------------
 
         //Display the Menu
-        private void displayMenu()
+        private void DisplayMenu()
         {
             Console.WriteLine();
             Console.WriteLine("What would you like to do?");
             Console.WriteLine();
-            Console.WriteLine("1. Load Wine List From CSV");
-            Console.WriteLine("2. Print The Entire List Of Items");
-            Console.WriteLine("3. Search For An Item");
-            Console.WriteLine("4. Add New Item To The List");
-            Console.WriteLine("5. Exit Program");
+            Console.WriteLine("1. List all beverages");
+            Console.WriteLine("2. Search for a beverage");
+            Console.WriteLine("3. Add a new beverage to the list");
+            Console.WriteLine("4. Update a beverage");
+            Console.WriteLine("5. Delete a beverage from the list");
+            Console.WriteLine("6. Close the program");
         }
 
         //Display the Prompt
-        private void displayPrompt()
+        private void DisplayPrompt()
         {
+            Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine();
             Console.Write("Enter Your Choice: ");
+            Console.ResetColor();
         }
 
         //Display the Error Message
-        private void displayErrorMessage()
+        private void DisplayErrorMessage()
         {
+            Console.ForegroundColor = ConsoleColor.DarkRed;
             Console.WriteLine();
-            Console.WriteLine("That is not a valid option. Please make a valid choice");
+            Console.WriteLine("Invalid input. Please try again.");
+            Console.ResetColor();
         }
 
         //Get the selection from the user
