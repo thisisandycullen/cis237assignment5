@@ -64,5 +64,6 @@ In class example
 http://www.dotnetperls.com/padright - Reminder on how to pad strings for pseudo-table formatting
 
 ## Known Problems, Issues, And/Or Errors in the Program
-Should work great!
 
+A few extra Models were added cause I didn't know what I was doing at first. I just left them since they weren't in the way.
+Over all, the program should work just fine.
